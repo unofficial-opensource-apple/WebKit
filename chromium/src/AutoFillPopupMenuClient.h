@@ -28,8 +28,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef AutoFillPopupMenuClient_h
-#define AutoFillPopupMenuClient_h
+#ifndef AutofillPopupMenuClient_h
+#define AutofillPopupMenuClient_h
 
 #include "PopupMenuClient.h"
 
@@ -45,12 +45,12 @@ class WebString;
 class WebViewImpl;
 template <typename T> class WebVector;
 
-// The AutoFill suggestions popup menu client, used to display name suggestions
+// The Autofill suggestions popup menu client, used to display name suggestions
 // with right-justified labels.
-class AutoFillPopupMenuClient : public WebCore::PopupMenuClient {
+class AutofillPopupMenuClient : public WebCore::PopupMenuClient {
 public:
-    AutoFillPopupMenuClient();
-    virtual ~AutoFillPopupMenuClient();
+    AutofillPopupMenuClient();
+    virtual ~AutofillPopupMenuClient();
 
     // Returns the number of suggestions available.
     virtual unsigned getSuggestionsCount() const;
@@ -84,8 +84,8 @@ public:
     virtual WebCore::PopupMenuStyle menuStyle() const;
     virtual int clientInsetLeft() const { return 0; }
     virtual int clientInsetRight() const { return 0; }
-    virtual int clientPaddingLeft() const;
-    virtual int clientPaddingRight() const;
+    virtual WebCore::LayoutUnit clientPaddingLeft() const;
+    virtual WebCore::LayoutUnit clientPaddingRight() const;
     virtual int listSize() const { return getSuggestionsCount(); }
     virtual int selectedIndex() const { return m_selectedIndex; }
     virtual void popupDidHide();
@@ -106,20 +106,15 @@ public:
                     const WebVector<WebString>& names,
                     const WebVector<WebString>& labels,
                     const WebVector<WebString>& icons,
-                    const WebVector<int>& uniqueIDs,
+                    const WebVector<int>& itemIDs,
                     int separatorIndex);
 
     void setSuggestions(const WebVector<WebString>& names,
                         const WebVector<WebString>& labels,
                         const WebVector<WebString>& icons,
-                        const WebVector<int>& uniqueIDs,
-                        int separatorIndex);
+                        const WebVector<int>& itemIDs);
 
 private:
-    // Convert the specified index from an index into the visible list (which might
-    // include a separator entry) to an index to |m_names| and |m_labels|.
-    // Returns -1 if the given index points to the separator.
-    int convertListIndexToInternalIndex(unsigned) const;
     WebViewImpl* getWebView() const;
     WebCore::HTMLInputElement* getTextField() const { return m_textField.get(); }
     WebCore::RenderStyle* textFieldStyle() const;
@@ -133,10 +128,7 @@ private:
     Vector<WTF::String> m_names;
     Vector<WTF::String> m_labels;
     Vector<WTF::String> m_icons;
-    Vector<int> m_uniqueIDs;
-
-    // The index of the separator.  -1 if there is no separator.
-    int m_separatorIndex;
+    Vector<int> m_itemIDs;
 
     // The index of the selected item.  -1 if there is no selected item.
     int m_selectedIndex;
@@ -144,6 +136,9 @@ private:
     RefPtr<WebCore::HTMLInputElement> m_textField;
     OwnPtr<WebCore::PopupMenuStyle> m_regularStyle;
     OwnPtr<WebCore::PopupMenuStyle> m_warningStyle;
+
+    // Use legacy behavior while the chromium side hasn't been updated.
+    bool m_useLegacyBehavior;
 };
 
 } // namespace WebKit
